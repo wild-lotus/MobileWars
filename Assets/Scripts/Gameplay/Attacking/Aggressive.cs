@@ -3,7 +3,6 @@ using UnityEngine.Assertions;
 using System;
 using System.Collections.Generic;
 using UniRx;
-using UniRx.Triggers;
 
 namespace EfrelGames
 {
@@ -45,7 +44,15 @@ namespace EfrelGames
 		#region Cached components
 		//======================================================================
 
-		public Movable _mov;
+		private Movable _mov;
+
+		#endregion
+
+
+		#region Private fields
+		//======================================================================
+
+		private float _lastAttackTime;
 
 		#endregion
 
@@ -62,57 +69,46 @@ namespace EfrelGames
 			_mov = sel.mov;
 		}
 
-		void Start ()
-		{
-			ObservableTriggerTrigger obsTrig = 
-				gameObject.AddComponent<ObservableTriggerTrigger> ();
-
-			// Detect approaching enemies
-			obsTrig.OnTriggerEnterAsObservable ()
-				.TakeUntilDestroy (gameObject)
-				.Select (other => other.GetComponent<SelectableCtrl> ().att)
-				.Where (att => this.IsEnemy (att))
-				.Subscribe (att => {
-					print ("Pom");
-					AttList.Add (att);
-					// Detect dying enemies
-					att.CurrentHp
-							.TakeUntilDestroy (gameObject)
-							.TakeWhile (_ => AttList.Contains (att))
-							.Where (hp => hp <= 0)
-							.Subscribe (hp => AttList.Remove (att));
-				});
-
-			// Detect leaving enemies
-			obsTrig.OnTriggerExitAsObservable ()
-				.TakeUntilDestroy (gameObject)
-				.Select (collider => collider.GetComponent<Attackable> ())
-				.Where (att => this.IsEnemy (att))
-				.Subscribe (att => AttList.Remove (att));
-
-			// Attacking stream. Attack as soon as there is a target.
-			Observable.EveryUpdate ()
-				.TakeUntilDestroy (gameObject)
-				.Where (_ =>
-					Target && Target.Alive && this.WithinRange (Target)
-				).ThrottleFirst (TimeSpan.FromSeconds (attackPeriod))
-				.Subscribe (_ => this.PerformAttack ());
+		void Update () {
+			// Attack target if possible
+			if (Target && Target.Alive && this.WithinRange (Target)) {
+				if (Time.time - attackPeriod > _lastAttackTime) {
+					this.PerformAttack ();
+					if (_lastAttackTime == 0) {
+						_lastAttackTime = Time.time;
+					} else {
+						_lastAttackTime = _lastAttackTime + attackPeriod;
+					}
+				}
+			}
 		}
 
-//		float laTime;
-//		void Update () {
-//
-//			if (Target && Target.Alive && this.WithinRange (Target)) {
-//				if (Time.time - attackPeriod > laTime) {
-//					this.PerformAttack ();
-//					if (laTime == 0) {
-//						laTime = Time.time;
-//					} else {
-//						laTime = laTime + attackPeriod;
-//					}
-//				}
-//			}
-//		}
+
+		void OnTriggerEnter (Collider other)
+		{
+			// Detect nearby approaching enemies
+			// (Only collisions with selectables should be reported here)
+			Attackable otherAtt = other.GetComponent<SelectableCtrl> ().att;
+			if (this.IsEnemy (otherAtt)) {
+				AttList.Add (otherAtt);
+				// Detect nearby dying enemies
+				otherAtt.CurrentHp
+					.TakeUntilDestroy (gameObject)
+					.TakeWhile (_ => AttList.Contains (otherAtt))
+					.Where (hp => hp <= 0)
+					.Subscribe (hp => AttList.Remove (otherAtt));
+			}
+		}
+
+		void OnTriggerExit (Collider other)
+		{
+			// Detect nearby leaving enemies
+			// (Only collisions with selectables should be reported here)
+			Attackable otherAtt = other.GetComponent<SelectableCtrl> ().att;
+			if (this.IsEnemy (otherAtt)) {
+				AttList.Remove (otherAtt);
+			}
+		}
 
 		#endregion
 

@@ -63,13 +63,12 @@ namespace EfrelGames
 			_mov = sel.mov;
 		}
 
-		void Start ()
+		void Update ()
 		{
-			// Stream to find auto attack targets
-			Observable.EveryUpdate ()
-				.TakeUntilDestroy (gameObject)
-				.Where (_ => !_agg.Target && _agg.AttList.Count > 0)
-				.Subscribe (_ => this.AutoAttack ());
+			// Find auto attack targets
+			if (!_agg.Target && _agg.AttList.Count > 0) {
+				this.AutoAttack ();
+			}
 		}
 
 		#endregion
@@ -189,9 +188,12 @@ namespace EfrelGames
 		/// </summary>
 		private Destination AddAutoAttackDest (Vector3 position)
 		{
-			Destination dest = new Destination (position, DestType.AutoAtt);
-			_mov.Add (dest);
-			return dest;
+			if (_mov.Dest == null || _mov.Dest.Position != position) {
+				Destination dest = new Destination (position, DestType.AutoAtt);
+				_mov.Add (dest);
+				return dest;
+			}
+			return _mov.Dest;
 		}
 
 		/// <summary>
@@ -205,15 +207,15 @@ namespace EfrelGames
 				_mov.Add (new Destination (_returnPos, DestType.AutoAttRetrun));
 
 			// Observe destination changes set by player.
-			IObservable<bool> newPlayerDest = _mov.DestObs.Select (
+			IObservable<bool> playerDestObs = _mov.DestObs.Select (
 				dest => 
 					dest != null && (int)dest.Type > (int)DestType.AutoAtt
           	);
-
+				
 			// Stream to reset return position when any observable is true.
-			Observable.Merge (pathCheckObs, newPlayerDest)
+			Observable.Merge (pathCheckObs, playerDestObs)
 				.TakeUntilDestroy (gameObject)
-				.TakeWhile (result => !result)
+				.TakeWhile (done => !done)
 				.DoOnCompleted (() => _returnPos = Vector3.zero)
 				.Subscribe ();
 		}

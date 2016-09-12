@@ -49,6 +49,15 @@ namespace EfrelGames
 
 		#endregion
 
+
+		#region Cached components
+		//======================================================================
+
+		public Transform trans;
+
+		#endregion
+
+
 		#region Public External references
 		//======================================================================
 
@@ -62,6 +71,7 @@ namespace EfrelGames
 
 		#endregion
 
+
 		#region Unity callbacks
 		//======================================================================
 
@@ -70,9 +80,12 @@ namespace EfrelGames
 			// Check external references
 			Assert.IsNotNull (selectionMngr);
 			Assert.IsNotNull (view);
+			// Cache components
+			trans = transform;
 		}
 
 		#endregion
+
 
 		#region Public methods
 		//======================================================================
@@ -96,6 +109,7 @@ namespace EfrelGames
 		}
 
 		#endregion
+
 
 		#region Context menu methods
 		//======================================================================

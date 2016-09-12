@@ -52,7 +52,7 @@ namespace EfrelGames
 		public void PlayerAttack (Attackable target)
 		{
 			// Can't attack targets out of range if not movable.
-			if (!_mov && !_agg.WithinRange (target)) {
+			if (!_mov && !_agg.WithinWeaponRange (target)) {
 				Debug.Log ("Target out of range");
 				return;
 			}
@@ -75,7 +75,7 @@ namespace EfrelGames
 						&& target.Alive
 						&& this.PlayerAttackReachable (target)
 				).Do (_ => {
-					if (!_agg.WithinRange (target)) {
+					if (!_agg.WithinWeaponRange (target)) {
 						// Chase enemy
 						dest = this.AddPlayerAttackDest (tgtTrans.position);
 					} else {
@@ -117,7 +117,7 @@ namespace EfrelGames
 		/// <param name="target">Target.</param>
 		public bool PlayerAttackReachable (Attackable target)
 		{
-			return _agg.WithinRange (target) || (
+			return _agg.WithinWeaponRange (target) || (
 			    _mov && (
 			        _mov.Dest == null
 			        	|| _mov.Dest.Type != DestType.PlayerSet

@@ -12,11 +12,8 @@ namespace EfrelGames
 		#region Public Configurable fields
 		//======================================================================
 
-		[Tooltip ("Damage per attack.")]
-		public float damage = 1f;
-
-		[Tooltip ("Attacking period.")]
-		public float attackPeriod = 1f;
+		/// <summary>The weapon used to attack enemies.</summary>
+		public Weapon weapon;
 
 		#endregion
 
@@ -28,7 +25,7 @@ namespace EfrelGames
 		public List<Attackable> AttList { get; private set; }
 
 		/// <summary>Current target being attacked</summary>
-		public Attackable Target { get; set; }
+		public Attackable Target { get; private set; }
 
 		#endregion
 
@@ -49,14 +46,6 @@ namespace EfrelGames
 		#endregion
 
 
-		#region Private fields
-		//======================================================================
-
-		private float _lastAttackTime;
-
-		#endregion
-
-
 		#region Unity callbacks
 		//======================================================================
 
@@ -71,15 +60,8 @@ namespace EfrelGames
 
 		void Update () {
 			// Attack target if possible
-			if (Target && Target.Alive && this.WithinRange (Target)) {
-				if (Time.time - attackPeriod > _lastAttackTime) {
-					this.PerformAttack ();
-					if (_lastAttackTime == 0) {
-						_lastAttackTime = Time.time;
-					} else {
-						_lastAttackTime = _lastAttackTime + attackPeriod;
-					}
-				}
+			if (Target && Target.Alive && this.WithinWeaponRange (Target)) {
+				weapon.Fire (Target);
 			}
 		}
 
@@ -120,6 +102,7 @@ namespace EfrelGames
 		/// <param name="target">The new target.</param>
 		public void Attack (Attackable target)
 		{
+			enabled = true;
 			Target = target;
 		}
 
@@ -132,18 +115,21 @@ namespace EfrelGames
 		{
 			if (Target == target) {
 				Target = null;
+				enabled = false;
 				return true;
 			}
 			return false;
 		}
 
 		/// <summary>
-		/// Check whether a given target is within attack range.
+		/// Check whether a given target is within its weapon range.
 		/// </summary>
 		/// <param name="att">The attackable target.</param>
-		public bool WithinRange (Attackable att)
+		public bool WithinWeaponRange (Attackable target)
 		{
-			return AttList.Contains (att);
+			return Vector3.Distance (
+				sel.trans.position, target.sel.trans.position
+			) < weapon.distance;
 		}
 
 		#endregion
@@ -163,12 +149,6 @@ namespace EfrelGames
 				return  otherPlayer != 0 && otherPlayer != sel.Player;
 			}
 			return false;
-		}
-
-		/// <summary>Fire against current target.</summary>
-		private void PerformAttack ()
-		{
-			Target.CurrentHp.Value -= damage;
 		}
 			
 		#endregion

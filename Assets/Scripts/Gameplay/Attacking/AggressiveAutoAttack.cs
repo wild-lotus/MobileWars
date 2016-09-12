@@ -17,6 +17,9 @@ namespace EfrelGames
 		//======================================================================
 
 		[Tooltip ("Distance this unit will chase an auto target.")]
+		public float autoAttackRange = 10f;
+
+		[Tooltip ("Distance this unit will chase an auto target.")]
 		public float autoChaseRange = 10f;
 
 		#endregion
@@ -60,13 +63,20 @@ namespace EfrelGames
 			_trans = transform;
 			_agg = GetComponent<Aggressive> ();
 			_mov = sel.mov;
+			// Auto attack integrity
+			Assert.IsTrue (
+				autoChaseRange + _agg.weapon.distance > autoAttackRange
+			);
 		}
 
 		void Update ()
 		{
 			// Find auto attack targets
-			if (!_agg.Target && _agg.AttList.Count > 0) {
-				this.AutoAttack ();
+			if (!_agg.Target) {
+				Attackable target = this.FindAutoTarget ();
+				if (target != null) {
+					this.AutoAttack (target);
+				}
 			}
 		}
 
@@ -76,15 +86,32 @@ namespace EfrelGames
 		#region Private methods
 		//======================================================================
 
-		/// <summary>Start an auto attack.</summary>
-		private void AutoAttack ()
+		/// <summary>
+		/// Find the bests the target to auto attack within available ones.
+		/// </summary>
+		/// <returns>The best target available.</returns>
+		private Attackable FindAutoTarget ()
 		{
-			// Find the best available target
-			Attackable target = this.BestTarget ();
-			Transform tgtTrans = target.transform;
-			Debug.Log (sel.name + " Auto attacking " + target.sel.name);
+			Attackable target = null;
+			// Choose the closest available target.
+			float minDistance = float.MaxValue;
+			foreach (Attackable enemy in _agg.AttList) {
+				float distance = Vector3.Distance (
+					_trans.position, enemy.transform.position
+				);
+				if (distance < autoAttackRange && distance < minDistance) {
+					minDistance = distance;
+					target = enemy;
+				}
+			}
+			return target;
+		}
 
+		/// <summary>Start an auto attack.</summary>
+		private void AutoAttack (Attackable target)
+		{
 			// Start attacking
+			Debug.Log (sel.name + " Auto attacking " + target.sel.name);
 			_agg.Attack (target);
 
 			// Set AutoReturn destination if movable.
@@ -101,6 +128,7 @@ namespace EfrelGames
 				
 			// Start AutoAttack chasing stream. Chase enemy while it is  within
 			// autoChaseRange.
+			Transform tgtTrans = target.transform;
 			Destination dest = null;
 			Observable.EveryUpdate ()
 				.TakeUntilDestroy (gameObject)
@@ -109,7 +137,7 @@ namespace EfrelGames
 						&& target.Alive
 						&& this.AutoAttackReachable (target)
 				).Do (_ => {
-					if (!_agg.WithinRange (target)) {
+					if (!_agg.WithinWeaponRange (target)) {
 						// Chase enemy
 						dest = this.AddAutoAttackDest (tgtTrans.position);
 					} else if (_mov) {
@@ -133,27 +161,6 @@ namespace EfrelGames
 		}
 
 		/// <summary>
-		/// Find the bests the target to auto attack within available ones.
-		/// </summary>
-		/// <returns>The best target available.</returns>
-		private Attackable BestTarget ()
-		{
-			Attackable target = null;
-			// Choose the closest available target.
-			float minDistance = float.MaxValue;
-			foreach (Attackable enemy in _agg.AttList) {
-				float distance = Vector3.Distance (
-					                 _trans.position, enemy.transform.position
-				                 );
-				if (distance < minDistance) {
-					minDistance = distance;
-					target = enemy;
-				}
-			}
-			return target;
-		}
-
-		/// <summary>
 		/// Check if current target is the same as the given one.
 		/// </summary>
 		/// <returns>Whethet it is the same target.</returns>
@@ -172,13 +179,13 @@ namespace EfrelGames
 		/// <param name="target">Target.</param>
 		public bool AutoAttackReachable (Attackable target)
 		{
-			bool withinAttackRange = _agg.WithinRange (target);
+			bool withinWeaopnRange = _agg.WithinWeaponRange (target);
 			bool hasPlayerSetDest = _mov && _mov.Dest != null
 				&&	_mov.Dest.Type == DestType.PlayerSet;
 			bool withinAutoChaseRange = _mov &&
 				Vector3.Distance (_trans.position, _returnPos) < autoChaseRange;
 
-			return withinAttackRange || 
+			return withinWeaopnRange || 
 				(!hasPlayerSetDest && withinAutoChaseRange);
 		}
 			

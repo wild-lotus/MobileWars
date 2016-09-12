@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Collections;
 using UniRx;
 
@@ -20,7 +21,7 @@ namespace EfrelGames
 		//======================================================================
 
 		/// <summary>Current health points of this unit (reactive). </summary>
-		public FloatReactiveProperty CurrentHp = new FloatReactiveProperty (10);
+		public FloatReactiveProperty CurrentHp;
 
 		/// <summary>Whether this unit is alive.</summary>
 		public bool Alive { get { return CurrentHp.Value > 0; } }
@@ -32,7 +33,8 @@ namespace EfrelGames
 		//======================================================================
 
 		public SelectableCtrl sel;
-		public Slider hpSlider;
+		public Transform wolrdUiTrans;
+		public HpBar hpBar;
 
 		#endregion
 
@@ -42,12 +44,25 @@ namespace EfrelGames
 
 		void Awake ()
 		{
-			// Init and update hp slider
-			hpSlider.maxValue = maxHp;
-			CurrentHp.Do (hp => hpSlider.value = hp)
+			CurrentHp = new FloatReactiveProperty (maxHp);
+			// Set HpBar external references and reparent.
+			hpBar.selTrans = sel.transform;
+			hpBar.height = hpBar.transform.position.y;
+			hpBar.transform.SetParent (wolrdUiTrans);
+		}
+
+		void Start ()
+		{
+			// Update HP bar and detect death.
+			CurrentHp
 				.TakeUntilDestroy (gameObject)
-				.Where (hp => hp <= 0)
-				.Subscribe (_ => this.Die ());
+				.ThrottleFrame (0, FrameCountType.EndOfFrame)
+				.Subscribe (hp => {
+					hpBar.SetProgress(hp / maxHp);
+					if (hp <= 0) {
+						this.Die ();
+					}
+				});
 		}
 
 		#endregion
@@ -65,6 +80,7 @@ namespace EfrelGames
 				sel.Selected = false;
 			}
 			Destroy (sel.gameObject);
+			Destroy (hpBar.gameObject);
 		}
 
 		#endregion
@@ -77,7 +93,8 @@ namespace EfrelGames
 		public void SetReferences ()
 		{
 			sel = GetComponentInParent<SelectableCtrl> ();
-			hpSlider = sel.GetComponentInChildren <Slider> ();
+			wolrdUiTrans = GameObject.Find ("WolrdUi").transform;
+			hpBar = GetComponentInChildren<HpBar> ();
 		}
 
 		#endregion

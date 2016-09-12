@@ -123,21 +123,17 @@ namespace EfrelGames
 		private void CheckSelection ()
 		{
 			if (IsSelDown) {
-				print ("down");
 				_pointerDownTime = Time.time;
 			} 
 			if (IsSelHold) {
-				print ("hold");
 
 				if (_action == Action.LongSel) {
-					print ("long sel");
 				} else if (_action == Action.None && (Time.time - _pointerDownTime) > LONG_SEL_TIME) {
 					_action = Action.LongSel;
 				}
 
 			}
 			if (IsSelUp) {
-				print ("up");
 				if (_action == Action.None) {
 					_tapCount++;
 					_lastTapPos = SelPos;

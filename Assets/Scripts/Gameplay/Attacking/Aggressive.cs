@@ -44,7 +44,7 @@ namespace EfrelGames
 		#region Cached components
 		//======================================================================
 
-		private Movable _mov;
+//		private Movable _mov;
 
 		#endregion
 
@@ -66,7 +66,7 @@ namespace EfrelGames
 			// Check external references
 			Assert.IsNotNull (sel);
 			// Cache components
-			_mov = sel.mov;
+//			_mov = sel.mov;
 		}
 
 		void Update () {
@@ -181,7 +181,7 @@ namespace EfrelGames
 		public void SetReferences ()
 		{
 			sel = GetComponentInParent<SelectableCtrl> ();
-			_mov = sel.mov;
+//			_mov = sel.mov;
 		}
 
 		#endregion

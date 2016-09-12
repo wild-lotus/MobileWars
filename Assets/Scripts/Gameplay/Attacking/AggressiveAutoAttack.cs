@@ -2,7 +2,6 @@
 using UnityEngine.Assertions;
 using System.Collections.Generic;
 using UniRx;
-using UniRx.Triggers;
 
 
 namespace EfrelGames

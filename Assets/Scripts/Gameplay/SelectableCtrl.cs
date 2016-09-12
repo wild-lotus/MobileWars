@@ -6,7 +6,13 @@ namespace EfrelGames
 {
 	public class SelectableCtrl : MonoBehaviour
 	{
+		#region Constants
+		//======================================================================
+
+		private const bool LOG = true;
 		public const int GROUND_LAYER = 8;
+
+		#endregion
 
 		#region Public Configurable properties
 		//======================================================================
@@ -31,8 +37,10 @@ namespace EfrelGames
 			set {
 				_selected = value;
 				if (_selected) {
+					if (LOG) Debug.Log (name + " Selected");
 					selectionMngr.selectedGoList.Add (this);
 				} else {
+					if (LOG) Debug.Log (name + " Unselected");
 					selectionMngr.selectedGoList.Remove (this);
 				}
 				view.Select (_selected);

@@ -12,6 +12,13 @@ namespace EfrelGames
 
 	public class SelectionMngr : MonoBehaviour
 	{
+		#region Constants
+		//======================================================================
+
+		private const bool LOG = true;
+
+		#endregion
+
 		#region Public fieds and properties
 		//======================================================================
 
@@ -54,21 +61,14 @@ namespace EfrelGames
 			RaycastHit hit;
 			if (Physics.Raycast (_cam.ScreenPointToRay (pos), out hit)) {
 				if (tapCount == 1) {
-					this.ClearSelection ();
-					SelectableCtrl selectableCtrl = hit.collider.GetComponent <SelectableCtrl> ();
-					if (selectableCtrl != null) {
-						selectableCtrl.Selected = true;
-						Debug.Log ("Selected " + selectableCtrl.name);
-					} else {
-						Debug.Log ("Selected empty.");
-					}
+					this.UpdateSelection (hit.collider.GetComponent <SelectableCtrl> ());
 				} else {
 					// Double tap, setting action target
 					if (selectedGoList.Count == 1) {
-						Debug.Log ("Action detected on " + hit.collider.name);
+						if (LOG) Debug.Log (name + " Action detected on " + hit.collider.name);
 						selectedGoList [0].ActionSelect (hit.collider.gameObject, hit.point);
 					} else {
-						Debug.Log ("Action detected but nothing selected.");
+						if (LOG) Debug.Log (name + " Action detected but nothing selected.");
 					}
 				}
 			}
@@ -81,10 +81,22 @@ namespace EfrelGames
 		//======================================================================
 
 		/// <summary>Remove all selectables from selection list.</summary>
-		private void ClearSelection ()
+		private void UpdateSelection (SelectableCtrl sel)
 		{
-			foreach (SelectableCtrl sel in new List<SelectableCtrl> (selectedGoList)) {
-				sel.Selected = false;
+			foreach (SelectableCtrl oldSel in new List<SelectableCtrl> (selectedGoList)) {
+				if (oldSel != sel) {
+					oldSel.Selected = false;
+				}
+			}
+			if (sel != null) {
+				if (!sel.Selected) {
+					if (LOG) Debug.Log (name + " Selected " + sel.name);
+					sel.Selected = true;
+				} else {
+					if (LOG) Debug.Log (name + " Reselected " + sel.name);
+				}
+			}else {
+				if (LOG) Debug.Log (name + " Selected empty.");
 			}
 		}
 

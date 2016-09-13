@@ -9,7 +9,6 @@ using UniRx.Triggers;
 
 namespace EfrelGames
 {
-
 	public class SelectionMngr : MonoBehaviour
 	{
 		#region Constants
@@ -28,18 +27,11 @@ namespace EfrelGames
 		#endregion
 
 
-		#region Cached fields
-		//======================================================================
-
-		private Camera _cam;
-
-		#endregion
-
-
 		#region External references
 		//======================================================================
 		
 		public PlayerCtrl player;
+		public GameObject longSelMark;
 		
 		#endregion
 
@@ -50,8 +42,6 @@ namespace EfrelGames
 		void Awake ()
 		{
 			selectedList = new List<SelectableCtrl> ();
-			// Cache components
-			_cam = Camera.main;
 		}
 
 		#endregion
@@ -60,46 +50,8 @@ namespace EfrelGames
 		#region Public methods
 		//======================================================================
 
-		/// <summary>
-		/// User selected something on the screen
-		/// </summary>
-		/// <param name="pos">Position on screen.</param>
-		/// <param name="tapCount">Number of taps of this selection.</param>
-		public void Select (Vector3 pos, int tapCount)
-		{
-			RaycastHit hit;
-			if (Physics.Raycast (_cam.ScreenPointToRay (pos), out hit)) {
-				if (tapCount == 1) {
-					this.UpdateSelection (hit.collider.GetComponent <SelectableCtrl> ());
-				} else {
-					// Double tap, setting action target
-					if (selectedList.Count > 0) {
-						if (LOG) Debug.Log (name + " Action detected on " + hit.collider.name);
-						foreach (SelectableCtrl sel in selectedList) {
-							sel.ActionSelect (hit.collider.gameObject, hit.point);
-						}
-					} else {
-						if (LOG) Debug.Log (name + " Action detected but nothing selected.");
-					}
-				}
-			}
-		}
-
-		public void AllUnits ()
-		{
-			foreach (SelectableCtrl sel in player.selList) {
-				sel.Selected = true;
-			}
-		}
-
-		#endregion
-
-
-		#region Private methods
-		//======================================================================
-
 		/// <summary>Remove all selectables from selection list.</summary>
-		private void UpdateSelection (SelectableCtrl sel)
+		public void UpdateSelection (SelectableCtrl sel)
 		{
 			foreach (SelectableCtrl oldSel in new List<SelectableCtrl> (selectedList)) {
 				if (oldSel != sel) {
@@ -118,6 +70,38 @@ namespace EfrelGames
 			}
 		}
 
+
+		public void AllUnits ()
+		{
+			foreach (SelectableCtrl sel in player.selList) {
+				sel.Selected = true;
+			}
+		}
+
+		public void BeginLongSel (Vector3 pos)
+		{
+			longSelMark.SetActive (true);
+			longSelMark.transform.position = pos + Vector3.up * 0.1f;
+		}
+
+		public void LongSel (Vector3 pos)
+		{
+			longSelMark.transform.position = pos + Vector3.up * 0.1f;
+		}
+
+		public void EndLongSel (Vector3 screenPos = new Vector3())
+		{
+			longSelMark.SetActive (false);
+		}
+
+		#endregion
+
+
+		#region Private methods
+		//======================================================================
+
+		////
+
 		#endregion
 
 
@@ -128,6 +112,7 @@ namespace EfrelGames
 		public void SetReferences ()
 		{
 			player = GameObject.Find ("Player").GetComponent<PlayerCtrl> ();
+			longSelMark = transform.Find ("LongSelMark").gameObject;
 		}
 
 		#endregion

@@ -96,19 +96,18 @@ namespace EfrelGames
 		#region Public methods
 		//======================================================================
 
-		public void ActionSelect (GameObject target, Vector3 pos)
+		public void ActionSelect (SelectableCtrl target, Vector3 pos)
 		{
-			SelectableCtrl other =  target.GetComponent<SelectableCtrl> ();
-			if (target.layer == GROUND_LAYER) {
+			if (target == null || target.Player == this.Player) {
 				if (this.mov != null) {
 					this.mov.Add (new Destination (pos, DestType.PlayerSet));
 					view.PlayerSetDest (pos);
 				}
-			} else if (this.aggPA && other.att &&
+			} else if (this.aggPA && target.att &&
 			           this.Player != target.GetComponent <SelectableCtrl> ().Player) {
 				this.transform.LookAt (target.transform.position);
-				this.aggPA.PlayerAttack (other.att);
-				view.PlayerAttackTarget (other.att);
+				this.aggPA.PlayerAttack (target.att);
+				view.PlayerAttackTarget (target.att);
 			} else {
 				Debug.LogWarning ("Unknown action");
 			}

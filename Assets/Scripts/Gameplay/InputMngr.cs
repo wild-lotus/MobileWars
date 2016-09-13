@@ -23,7 +23,9 @@ namespace EfrelGames
 		//======================================================================
 
 		private const float TAP_TIME = 0.25f;
-		private const float LONG_SEL_TIME = 1f;
+		private const float LONG_SEL_TIME = 0.5f;
+		public const int GROUND_LAYER = 8;
+		public const int SELECTABLE_LAYER = 9;
 
 		#endregion
 
@@ -31,6 +33,7 @@ namespace EfrelGames
 		#region Cached fields
 		//======================================================================
 
+		private Camera _cam;
 		private CamDragMngr _camDrag;
 		private SelectionMngr _selMngr;
 
@@ -73,6 +76,7 @@ namespace EfrelGames
 
 		void Awake ()
 		{
+			_cam = Camera.main;
 			_camDrag = GetComponent<CamDragMngr> ();
 			_selMngr = GetComponent<SelectionMngr> ();
 		}
@@ -98,15 +102,16 @@ namespace EfrelGames
 				_pointerDownPos = SelPos;
 			} 
 			if (IsSelHold) {
-				if (_action == Action.LongSel) {
-					// TURUUUU
-				} else if (_action == Action.Drag) {
+				if (_action == Action.Drag) {
 					_camDrag.Drag (SelPos);
+				} else if (_action == Action.LongSel) {
+					_selMngr.LongSel (this.ScreenPointToGround(SelPos));
 				} else if (SelPos != _pointerDownPos) {
 					_action = Action.Drag;
 					_camDrag.BeginDrag (SelPos);
 				} else if ((Time.time - _pointerDownTime) > LONG_SEL_TIME) {
 					_action = Action.LongSel;
+					_selMngr.BeginLongSel (this.ScreenPointToGround(SelPos));
 				}
 			}
 			if (IsSelUp) {
@@ -115,18 +120,64 @@ namespace EfrelGames
 					_lastTapPos = SelPos;
 					_lastTapTime = Time.time;
 				} else {
+					if (_action == Action.LongSel) {
+						_selMngr.EndLongSel ();
+					}
 					_action = Action.None;
 				}
 			}
 
 			if (_tapCount > 0) {
 				if (Time.time - _lastTapTime > TAP_TIME) {
-					_selMngr.Select (_lastTapPos, _tapCount);
+					this.TapToSelectionAction (_lastTapPos, _tapCount);
 					_tapCount = 0;
 				}
 			}
 		}
 
 		#endregion
+
+		private Vector3 ScreenPointToGround (Vector3 screenPos)
+		{
+			RaycastHit hit;
+			int layerMask = 1 << GROUND_LAYER;
+			if (Physics.Raycast (_cam.ScreenPointToRay (screenPos), out hit, 
+				100f, layerMask)) {
+				return hit.point;
+			}
+			return Vector3.zero;
+		}
+
+		private void TapToSelectionAction (Vector3 pos, int tapCount) {
+			if (tapCount == 1) {
+				RaycastHit hit;
+				int layerMask = 1 << SELECTABLE_LAYER;
+				SelectableCtrl sel = null;
+				if (Physics.Raycast (_cam.ScreenPointToRay (pos), out hit, 100f,
+						layerMask)) {
+					sel = hit.collider.GetComponent <SelectableCtrl> ();
+				}
+				_selMngr.UpdateSelection (sel);
+			} else {
+				int layerMask = (1 << SELECTABLE_LAYER) | (1 << GROUND_LAYER) ;
+				RaycastHit[] hits = Physics.RaycastAll (
+					_cam.ScreenPointToRay (pos), 100, layerMask
+				);
+				SelectableCtrl target = null;
+				Vector3 groundPos = Vector3.zero;
+				foreach (RaycastHit hit in hits) {
+					GameObject hitGo = hit.collider.gameObject;
+					if (hitGo.layer == SELECTABLE_LAYER) {
+						target = hitGo.GetComponent<SelectableCtrl> ();
+					}
+					if (hitGo.layer == GROUND_LAYER) {
+						groundPos = hit.point;
+					}
+					foreach (SelectableCtrl sel in _selMngr.selectedList) {
+						sel.ActionSelect (target, groundPos);
+					}
+				}
+			}
+		}
 	}
 }

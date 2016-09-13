@@ -332,7 +332,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010768373450}
   m_LocalRotation: {x: -0, y: -0.8789446, z: -0, w: 0.47692394}
-  m_LocalPosition: {x: 1.63, y: 0, z: 23.92}
+  m_LocalPosition: {x: -7.1, y: 0, z: 9.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: -123.171005, z: 0}
   m_Children:
@@ -434,7 +434,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000012346018826}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.1, z: 0}
+  m_LocalPosition: {x: 0, y: 0.2, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 1}
   m_LocalEulerAnglesHint: {x: 90, y: 56, z: 0}
   m_Children: []
@@ -742,7 +742,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletSpeed: 20
   damage: 1
-  firingSpeed: 1
+  firingPeriod: 1
   distance: 10
   bulletPrefab: {fileID: 1000010511982654, guid: 35b400d5f070342a3b4ff00c00a4f1d2,
     type: 2}
@@ -925,6 +925,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _player: 2
+  _selected: 0
   trans: {fileID: 0}
   selectionMngr: {fileID: 0}
   view: {fileID: 114000010333855666}

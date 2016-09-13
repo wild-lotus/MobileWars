@@ -31,19 +31,25 @@ namespace EfrelGames
 			}
 		}
 
+		[SerializeField]
+		[HideInInspector]
 		private bool _selected;
 		public bool Selected {
 			get { return _selected; }
 			set {
-				_selected = value;
-				if (_selected) {
-					if (LOG) Debug.Log (name + " Selected");
-					selectionMngr.selectedGoList.Add (this);
-				} else {
-					if (LOG) Debug.Log (name + " Unselected");
-					selectionMngr.selectedGoList.Remove (this);
+				if (_selected != value) {
+					_selected = value;
+					if (_selected) {
+						if (LOG)
+							Debug.Log (name + " Selected");
+						selectionMngr.selectedList.Add (this);
+					} else {
+						if (LOG)
+							Debug.Log (name + " Unselected");
+						selectionMngr.selectedList.Remove (this);
+					}
+					view.Select (_selected);
 				}
-				view.Select (_selected);
 			}
 		}
 

@@ -19,18 +19,27 @@ namespace EfrelGames
 
 		#endregion
 
+
 		#region Public fieds and properties
 		//======================================================================
 
-		public IList<SelectableCtrl> selectedGoList;
+		public IList<SelectableCtrl> selectedList;
 
 		#endregion
 
 
 		#region Cached fields
 		//======================================================================
-		
+
 		private Camera _cam;
+
+		#endregion
+
+
+		#region External references
+		//======================================================================
+		
+		public PlayerCtrl player;
 		
 		#endregion
 
@@ -40,7 +49,7 @@ namespace EfrelGames
 
 		void Awake ()
 		{
-			selectedGoList = new List<SelectableCtrl> ();
+			selectedList = new List<SelectableCtrl> ();
 			// Cache components
 			_cam = Camera.main;
 		}
@@ -64,13 +73,22 @@ namespace EfrelGames
 					this.UpdateSelection (hit.collider.GetComponent <SelectableCtrl> ());
 				} else {
 					// Double tap, setting action target
-					if (selectedGoList.Count == 1) {
+					if (selectedList.Count > 0) {
 						if (LOG) Debug.Log (name + " Action detected on " + hit.collider.name);
-						selectedGoList [0].ActionSelect (hit.collider.gameObject, hit.point);
+						foreach (SelectableCtrl sel in selectedList) {
+							sel.ActionSelect (hit.collider.gameObject, hit.point);
+						}
 					} else {
 						if (LOG) Debug.Log (name + " Action detected but nothing selected.");
 					}
 				}
+			}
+		}
+
+		public void AllUnits ()
+		{
+			foreach (SelectableCtrl sel in player.selList) {
+				sel.Selected = true;
 			}
 		}
 
@@ -83,7 +101,7 @@ namespace EfrelGames
 		/// <summary>Remove all selectables from selection list.</summary>
 		private void UpdateSelection (SelectableCtrl sel)
 		{
-			foreach (SelectableCtrl oldSel in new List<SelectableCtrl> (selectedGoList)) {
+			foreach (SelectableCtrl oldSel in new List<SelectableCtrl> (selectedList)) {
 				if (oldSel != sel) {
 					oldSel.Selected = false;
 				}
@@ -98,6 +116,18 @@ namespace EfrelGames
 			}else {
 				if (LOG) Debug.Log (name + " Selected empty.");
 			}
+		}
+
+		#endregion
+
+
+		#region Context menu methods
+		//======================================================================
+
+		[ContextMenu ("Set References")]
+		public void SetReferences ()
+		{
+			player = GameObject.Find ("Player").GetComponent<PlayerCtrl> ();
 		}
 
 		#endregion

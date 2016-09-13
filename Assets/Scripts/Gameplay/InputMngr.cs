@@ -42,65 +42,28 @@ namespace EfrelGames
 
 		private Action _action = Action.None;
 		private float _pointerDownTime = 0f;
+		private Vector3 _pointerDownPos = Vector3.zero;
 		private int _tapCount = 0;
 		private float _lastTapTime = 0f;
 		private Vector3 _lastTapPos;
 
 #if  UNITY_EDITOR || UNITY_STANDALONE
 
-		private bool IsSelDown { get { return Input.GetMouseButtonDown (0); } }
-		
-		private bool IsSelHold { get { return Input.GetMouseButton (0); } }
-		
-		private bool IsSelUp { get { return Input.GetMouseButtonUp (0); } }
-		
-		private Vector3 SelPos { get { return Input.mousePosition; } }
-
-		private bool IsDrag { get { return Input.GetMouseButton(1); } }
-
-		private bool IsEndDrag { get { return Input.GetMouseButtonUp(1); } }
-
-		private Vector3 DragPos { get { return Input.mousePosition; } }
-
 		private bool IsAllUnits { get { return Input.GetKeyUp("a"); } }
 
 #elif UNITY_ANDROID || UNITY_IOS
 
-
-
-		private bool IsSelDown {
-			get { 
-				return Input.touchCount == 1 
-					&& Input.GetTouch(0).phase == TouchPhase.Began; 
-			}
-		}
-
-		private bool IsSelHold { get { return Input.touchCount == 1; } }
-
-		private bool IsSelUp {
-			get { 
-				return Input.touchCount == 1 
-					&& Input.GetTouch(0).phase == TouchPhase.Ended;
-			}
-		}
-
-		private Vector3 SelPos { get { return Input.mousePosition; } }
-
-		private bool IsDrag { get { return Input.touchCount == 2; } }
-
-		private bool IsEndDrag { get { return Input.touchCount == 0; } }
-
-		private Vector3 DragPos {
-			get {
-				return (
-					Input.GetTouch (0).position + Input.GetTouch (1).position
-				) / 2;
-			}
-		}
-
-		private bool IsAllUnits { get { return Input.touchCount == 3; } }
+		private bool IsAllUnits { get { return Input.touchCount == 2; } }
 
 #endif
+
+		private bool IsSelDown { get { return Input.GetMouseButtonDown (0); } }
+
+		private bool IsSelHold { get { return Input.GetMouseButton (0); } }
+
+		private bool IsSelUp { get { return Input.GetMouseButtonUp (0); } }
+
+		private Vector3 SelPos { get { return Input.mousePosition; } }
 
 		#endregion
 
@@ -117,7 +80,6 @@ namespace EfrelGames
 		void Update ()
 		{
 			this.CheckSelection ();
-			this.CheckDrag ();
 			if (IsAllUnits) {
 				_selMngr.AllUnits ();
 			}
@@ -133,14 +95,19 @@ namespace EfrelGames
 		{
 			if (IsSelDown) {
 				_pointerDownTime = Time.time;
+				_pointerDownPos = SelPos;
 			} 
 			if (IsSelHold) {
-
 				if (_action == Action.LongSel) {
-				} else if (_action == Action.None && (Time.time - _pointerDownTime) > LONG_SEL_TIME) {
+					// TURUUUU
+				} else if (_action == Action.Drag) {
+					_camDrag.Drag (SelPos);
+				} else if (SelPos != _pointerDownPos) {
+					_action = Action.Drag;
+					_camDrag.BeginDrag (SelPos);
+				} else if ((Time.time - _pointerDownTime) > LONG_SEL_TIME) {
 					_action = Action.LongSel;
 				}
-
 			}
 			if (IsSelUp) {
 				if (_action == Action.None) {
@@ -156,21 +123,6 @@ namespace EfrelGames
 				if (Time.time - _lastTapTime > TAP_TIME) {
 					_selMngr.Select (_lastTapPos, _tapCount);
 					_tapCount = 0;
-				}
-			}
-		}
-
-		private void CheckDrag ()
-		{
-			if (_action == Action.None && IsDrag) {
-				_action = Action.Drag;
-				_camDrag.BeginDrag (Input.mousePosition);
-			} else if (_action == Action.Drag) {
-				if (IsDrag) {
-					_camDrag.Drag (DragPos);
-				} else if (IsEndDrag) {
-					_action = Action.None;
-					_camDrag.EndDrag (Input.mousePosition); 
 				}
 			}
 		}

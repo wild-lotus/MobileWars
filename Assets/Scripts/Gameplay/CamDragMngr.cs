@@ -80,9 +80,9 @@ namespace EfrelGames
 			}
 		}
 
-		public void EndDrag (Vector3 pos)
-		{
-		}
+//		public void EndDrag (Vector3 pos)
+//		{
+//		}
 
 		#endregion
 

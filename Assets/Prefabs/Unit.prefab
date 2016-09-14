@@ -105,6 +105,7 @@ GameObject:
   - 114: {fileID: 114000014131321606}
   - 114: {fileID: 114000010333855666}
   - 114: {fileID: 114000012282768436}
+  - 208: {fileID: 208000013609785942}
   m_Layer: 9
   m_Name: Unit
   m_TagString: Untagged
@@ -332,7 +333,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010768373450}
   m_LocalRotation: {x: -0, y: -0.8789446, z: -0, w: 0.47692394}
-  m_LocalPosition: {x: -7.1, y: 0, z: 9.4}
+  m_LocalPosition: {x: -6.6, y: 0.2333333, z: 11.9}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: -123.171005, z: 0}
   m_Children:
@@ -964,8 +965,8 @@ NavMeshAgent:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010768373450}
-  m_Enabled: 1
-  m_Radius: 1.5
+  m_Enabled: 0
+  m_Radius: 1.4
   m_Speed: 3.5
   m_Acceleration: 15
   avoidancePriority: 50
@@ -978,6 +979,21 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!208 &208000013609785942
+NavMeshObstacle:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000010768373450}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 0
+  m_Extents: {x: 1.4, y: 1, z: 1.4}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5
 --- !u!222 &222000010504958444
 CanvasRenderer:
   m_ObjectHideFlags: 1

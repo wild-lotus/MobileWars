@@ -93,7 +93,7 @@ namespace EfrelGames
 		public void SetReferences ()
 		{
 			sel = GetComponentInParent<SelectableCtrl> ();
-			wolrdUiTrans = GameObject.Find ("WolrdUi").transform;
+			wolrdUiTrans = GameObject.Find ("WorldUI").transform;
 			hpBar = GetComponentInChildren<HpBar> ();
 		}
 

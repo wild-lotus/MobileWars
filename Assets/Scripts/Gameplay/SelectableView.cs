@@ -13,6 +13,7 @@ namespace EfrelGames {
 		public void Select (bool selected)
 		{
 			if (selected) {
+				selMarkAnim.ResetTrigger("Unselected");
 				selMarkAnim.SetTrigger ("Selected");
 			} else {
 				selMarkAnim.SetTrigger ("Unselected");

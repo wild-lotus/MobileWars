@@ -157,7 +157,7 @@ namespace EfrelGames
 						layerMask)) {
 					sel = hit.collider.GetComponent <SelectableCtrl> ();
 				}
-				_selMngr.UpdateSelection (sel);
+				_selMngr.SetSelection (sel);
 			} else {
 				int layerMask = (1 << SELECTABLE_LAYER) | (1 << GROUND_LAYER) ;
 				RaycastHit[] hits = Physics.RaycastAll (

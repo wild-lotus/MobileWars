@@ -42,6 +42,11 @@ namespace EfrelGames
 		void Awake ()
 		{
 			selectedList = new List<SelectableCtrl> ();
+			longSelMark.GetComponent<ObservableTriggerTrigger> ()
+				.OnTriggerEnterAsObservable ()
+				.Subscribe (collider =>
+					AddSelection (collider.GetComponent<SelectableCtrl> ())
+				);
 		}
 
 		#endregion
@@ -51,22 +56,27 @@ namespace EfrelGames
 		//======================================================================
 
 		/// <summary>Remove all selectables from selection list.</summary>
-		public void UpdateSelection (SelectableCtrl sel)
+		public void SetSelection (SelectableCtrl sel)
+		{
+			this.ClearSelection ();
+			if (sel != null) {
+				if (LOG) Debug.Log (name + " Selected " + sel.name);
+				sel.Selected = true;
+			}
+		}
+
+		/// <summary>Remove all selectables from selection list.</summary>
+		public void AddSelection (SelectableCtrl sel)
+		{
+			if (sel != null) {
+				sel.Selected = true;
+			}
+		}
+
+		private void ClearSelection ()
 		{
 			foreach (SelectableCtrl oldSel in new List<SelectableCtrl> (selectedList)) {
-				if (oldSel != sel) {
-					oldSel.Selected = false;
-				}
-			}
-			if (sel != null) {
-				if (!sel.Selected) {
-					if (LOG) Debug.Log (name + " Selected " + sel.name);
-					sel.Selected = true;
-				} else {
-					if (LOG) Debug.Log (name + " Reselected " + sel.name);
-				}
-			}else {
-				if (LOG) Debug.Log (name + " Selected empty.");
+				oldSel.Selected = false;
 			}
 		}
 
@@ -80,6 +90,7 @@ namespace EfrelGames
 
 		public void BeginLongSel (Vector3 pos)
 		{
+			this.ClearSelection ();
 			longSelMark.SetActive (true);
 			longSelMark.transform.position = pos + Vector3.up * 0.1f;
 		}

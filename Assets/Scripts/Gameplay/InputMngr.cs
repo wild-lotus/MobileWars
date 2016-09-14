@@ -3,12 +3,18 @@ using System.Collections;
 
 namespace EfrelGames
 {
+	/// <summary>
+	/// Input manager.
+	/// </summary>
 	[RequireComponent (typeof(CamDragMngr))]
 	public class InputMngr : MonoBehaviour
 	{
 		#region Enumerators
 		//======================================================================
 
+		/// <summary>
+		/// Different types of available actions with input.
+		/// </summary>
 		private enum Action
 		{
 			None,
@@ -201,10 +207,7 @@ namespace EfrelGames
 			if (tapCount == 1) {
 				_selMngr.SetSelection (target);
 			} else {
-				Vector3 groundPos = this.ScreenPointToGround (screenPos);
-				foreach (SelectableCtrl sel in _selMngr.selectedList) {
-					sel.ActionSelect (target, groundPos);
-				}
+				_selMngr.SetAction(target, this.ScreenPointToGround (screenPos));
 			}
 		}
 

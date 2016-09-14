@@ -2351,6 +2351,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 1845131964}
   longSelMark: {fileID: 2126140789}
+  destFxPrefab: {fileID: 1000013440406384, guid: 1853fb03cf13747d6b8b581445ca5853,
+    type: 2}
 --- !u!114 &1522740915
 MonoBehaviour:
   m_ObjectHideFlags: 0

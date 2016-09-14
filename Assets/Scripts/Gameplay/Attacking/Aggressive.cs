@@ -145,8 +145,8 @@ namespace EfrelGames
 		private bool IsEnemy (Attackable att)
 		{
 			if (att != null) {
-				int otherPlayer = att.sel.Player;
-				return  otherPlayer != 0 && otherPlayer != sel.Player;
+				int otherPlayer = att.sel.PlayerNum;
+				return  otherPlayer != 0 && otherPlayer != sel.PlayerNum;
 			}
 			return false;
 		}

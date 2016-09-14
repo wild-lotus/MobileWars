@@ -4,6 +4,9 @@ using System.Collections;
 
 namespace EfrelGames
 {
+	/// <summary>
+	/// Controller for a selectable.
+	/// </summary>
 	public class SelectableCtrl : MonoBehaviour
 	{
 		#region Constants
@@ -20,13 +23,13 @@ namespace EfrelGames
 		[SerializeField]
 		[HideInInspector]
 		private int _player;
-		public int Player {
+		public int PlayerNum {
 			get { return _player; }
 			set {
 				if (_player != value) {
 					_player = value;
 					_player = Mathf.Clamp (_player, 0, 2);
-					view.SetPlayer (_player);
+					view.SetPlayerNum (_player);
 				}
 			}
 		}
@@ -96,20 +99,27 @@ namespace EfrelGames
 		#region Public methods
 		//======================================================================
 
-		public void ActionSelect (SelectableCtrl target, Vector3 pos)
+		public void Move (Vector3 pos)
 		{
-			if (target == null || target.Player == this.Player) {
-				if (this.mov != null) {
-					this.mov.Add (new Destination (pos, DestType.PlayerSet));
-					view.PlayerSetDest (pos);
-				}
-			} else if (this.aggPA && target.att &&
-			           this.Player != target.GetComponent <SelectableCtrl> ().Player) {
-				this.transform.LookAt (target.transform.position);
-				this.aggPA.PlayerAttack (target.att);
-				view.PlayerAttackTarget (target.att);
+			if (this.mov != null) {
+				this.mov.Add (new Destination (pos, DestType.PlayerSet));
+				view.Move (pos);
 			} else {
-				Debug.LogWarning ("Unknown action");
+				Debug.Log (string.Format("{0} can't move", name));
+			}
+		}
+
+		public void Attack (SelectableCtrl target)
+		{
+			if (this.aggPA && target.att &&
+			    	this.PlayerNum != 
+						target.GetComponent <SelectableCtrl> ().PlayerNum) {
+				this.aggPA.PlayerAttack (target.att);
+				view.Attack (target.att);
+			} else {
+				Debug.Log (
+					string.Format("{0} can't attack {1}", name, target.name)
+				);
 			}
 		}
 

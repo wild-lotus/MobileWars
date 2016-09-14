@@ -10,7 +10,7 @@ namespace EfrelGames {
 		{
 			base.OnInspectorGUI ();
 			SelectableCtrl selectableCtrl = (SelectableCtrl)target;
-			selectableCtrl.Player = EditorGUILayout.IntField ("Player", selectableCtrl.Player);
+			selectableCtrl.PlayerNum = EditorGUILayout.IntField ("Player Num", selectableCtrl.PlayerNum);
 			selectableCtrl.Selected = EditorGUILayout.Toggle ("Selected", selectableCtrl.Selected);
 			EditorUtility.SetDirty (selectableCtrl);
 //			EditorUtility.SetDirty (selectableCtrl.view.selectMarkProjector);

@@ -9,6 +9,9 @@ using UniRx.Triggers;
 
 namespace EfrelGames
 {
+	/// <summary>
+	/// Manages the selections performed by the player.
+	/// </summary>
 	public class SelectionMngr : MonoBehaviour
 	{
 		#region Constants
@@ -19,9 +22,12 @@ namespace EfrelGames
 		#endregion
 
 
-		#region Public fieds and properties
+		#region Public fields and properties
 		//======================================================================
 
+		/// <summary>
+		/// List of selectables currently selected by the player.
+		/// </summary>
 		public IList<SelectableCtrl> selectedList;
 
 		#endregion
@@ -32,6 +38,7 @@ namespace EfrelGames
 		
 		public PlayerCtrl player;
 		public GameObject longSelMark;
+		public GameObject destFxPrefab;
 		
 		#endregion
 
@@ -42,6 +49,8 @@ namespace EfrelGames
 		void Awake ()
 		{
 			selectedList = new List<SelectableCtrl> ();
+
+			// Stream to add units to the selection with long selection mark.
 			longSelMark.GetComponent<ObservableTriggerTrigger> ()
 				.OnTriggerEnterAsObservable ()
 				.Subscribe (collider =>
@@ -55,7 +64,10 @@ namespace EfrelGames
 		#region Public methods
 		//======================================================================
 
-		/// <summary>Remove all selectables from selection list.</summary>
+		/// <summary>
+		/// /// <summary>Set the selection to the given selectable.</summary>
+		/// </summary>
+		/// <param name="sel">Selectable selected.</param>
 		public void SetSelection (SelectableCtrl sel)
 		{
 			this.ClearSelection ();
@@ -65,7 +77,10 @@ namespace EfrelGames
 			}
 		}
 
-		/// <summary>Remove all selectables from selection list.</summary>
+		/// <summary>
+		/// /// <summary>Add to the selection the given selectable.</summary>
+		/// </summary>
+		/// <param name="sel">Selectable added to selection.</param>
 		public void AddSelection (SelectableCtrl sel)
 		{
 			if (sel != null) {
@@ -73,6 +88,32 @@ namespace EfrelGames
 			}
 		}
 
+		/// <summary>
+		/// Set an action for the current selection. 
+		/// </summary>
+		/// <param name="target">Target selectable.</param>
+		/// <param name="groundPos">Ground position.</param>
+		public void SetAction (SelectableCtrl target, Vector3 groundPos)
+		{
+			if (target == null || target.PlayerNum == PlayerCtrl.PlayerNum) {
+				// It is a move action.
+				this.SpawnDestFx (groundPos);
+				foreach (SelectableCtrl sel in selectedList) {
+					sel.Move (groundPos);
+				}
+			} else {
+				// It is an attack action.
+				target.view.selMarkAnim.SetTrigger ("Targeted");
+				this.SpawnDestFx (target.trans.position);
+				foreach (SelectableCtrl sel in selectedList) {
+					sel.Attack (target);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Clears the selection.
+		/// </summary>
 		private void ClearSelection ()
 		{
 			foreach (SelectableCtrl oldSel in new List<SelectableCtrl> (selectedList)) {
@@ -80,14 +121,20 @@ namespace EfrelGames
 			}
 		}
 
-
+		/// <summary>
+		/// Adds all units to the selection.
+		/// </summary>
 		public void AllUnits ()
 		{
-			foreach (SelectableCtrl sel in player.selList) {
+			foreach (SelectableCtrl sel in player.unitsList) {
 				sel.Selected = true;
 			}
 		}
 
+		/// <summary>
+		/// Begins the long selelection of units.
+		/// </summary>
+		/// <param name="pos">Input position.</param>
 		public void BeginLongSel (Vector3 pos)
 		{
 			this.ClearSelection ();
@@ -95,11 +142,19 @@ namespace EfrelGames
 			longSelMark.transform.position = pos + Vector3.up * 0.1f;
 		}
 
+		/// <summary>
+		/// Handle the long selelection of units.
+		/// </summary>
+		/// <param name="pos">Input position.</param>
 		public void LongSel (Vector3 pos)
 		{
 			longSelMark.transform.position = pos + Vector3.up * 0.1f;
 		}
 
+		/// <summary>
+		/// Ends the long selelection of units.
+		/// </summary>
+		/// <param name="pos">Input position.</param>
 		public void EndLongSel (Vector3 screenPos = new Vector3())
 		{
 			longSelMark.SetActive (false);
@@ -111,7 +166,17 @@ namespace EfrelGames
 		#region Private methods
 		//======================================================================
 
-		////
+		/// <summary>
+		/// Spawns the destination effect.
+		/// </summary>
+		/// <param name="pos">Position to spawn the effect.</param>
+		private void SpawnDestFx (Vector3 pos)
+		{
+			GameObject destFxGo = Instantiate (
+				destFxPrefab, pos + Vector3.up, Quaternion.Euler(90, 0, 0)
+			) as GameObject;
+			Destroy (destFxGo, 1);
+		}
 
 		#endregion
 

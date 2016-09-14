@@ -13,7 +13,8 @@ namespace EfrelGames
 		{
 			None,
 			Drag,
-			LongSel
+			LongSel,
+			AllUnits
 		}
 
 		#endregion
@@ -50,15 +51,9 @@ namespace EfrelGames
 		private float _lastTapTime = 0f;
 		private Vector3 _lastTapPos;
 
-#if  UNITY_EDITOR || UNITY_STANDALONE
+		private Vector3 SelPos { get { return Input.mousePosition; } }
 
-		private bool IsAllUnits { get { return Input.GetKeyUp("a"); } }
-
-#elif UNITY_ANDROID || UNITY_IOS
-
-		private bool IsAllUnits { get { return Input.touchCount == 2; } }
-
-#endif
+		#if  (UNITY_EDITOR || UNITY_STANDALONE)
 
 		private bool IsSelDown { get { return Input.GetMouseButtonDown (0); } }
 
@@ -66,7 +61,29 @@ namespace EfrelGames
 
 		private bool IsSelUp { get { return Input.GetMouseButtonUp (0); } }
 
-		private Vector3 SelPos { get { return Input.mousePosition; } }
+		private bool IsAllUnits { get { return Input.GetKeyUp("a"); } }
+
+		#elif (UNITY_ANDROID || UNITY_IOS)
+
+		private bool IsSelDown {
+			get { 
+				return Input.touchCount == 1 
+					&& Input.GetTouch(0).phase == TouchPhase.Began; 
+			}
+		}
+
+		private bool IsSelHold { get { return Input.touchCount == 1; } }
+
+		private bool IsSelUp {
+			get { 
+				return Input.touchCount == 1 
+					&& Input.GetTouch(0).phase == TouchPhase.Ended;
+			}
+		}
+
+		private bool IsAllUnits { get { return Input.touchCount == 3; } }
+
+		#endif
 
 		#endregion
 
@@ -76,6 +93,10 @@ namespace EfrelGames
 
 		void Awake ()
 		{
+			// Configure input.
+			Input.simulateMouseWithTouches = false;
+			Input.backButtonLeavesApp = true;
+			//Cache components
 			_cam = Camera.main;
 			_camDrag = GetComponent<CamDragMngr> ();
 			_selMngr = GetComponent<SelectionMngr> ();
@@ -83,10 +104,11 @@ namespace EfrelGames
 
 		void Update ()
 		{
-			this.CheckSelection ();
-			if (IsAllUnits) {
+			if (_action == Action.None && IsAllUnits) {
+				_action = Action.AllUnits;
 				_selMngr.AllUnits ();
 			}
+			this.CheckSelection ();
 		}
 
 		#endregion
@@ -105,13 +127,15 @@ namespace EfrelGames
 				if (_action == Action.Drag) {
 					_camDrag.Drag (SelPos);
 				} else if (_action == Action.LongSel) {
-					_selMngr.LongSel (this.ScreenPointToGround(SelPos));
-				} else if (SelPos != _pointerDownPos) {
-					_action = Action.Drag;
-					_camDrag.BeginDrag (SelPos);
-				} else if ((Time.time - _pointerDownTime) > LONG_SEL_TIME) {
-					_action = Action.LongSel;
-					_selMngr.BeginLongSel (this.ScreenPointToGround(SelPos));
+					_selMngr.LongSel (this.ScreenPointToGround (SelPos));
+				} else if (_action == Action.None) {
+					if (SelPos != _pointerDownPos) {
+						_action = Action.Drag;
+						_camDrag.BeginDrag (SelPos);
+					} else if ((Time.time - _pointerDownTime) > LONG_SEL_TIME) {
+						_action = Action.LongSel;
+						_selMngr.BeginLongSel (this.ScreenPointToGround (SelPos));
+					}
 				}
 			}
 			if (IsSelUp) {
@@ -134,9 +158,12 @@ namespace EfrelGames
 				}
 			}
 		}
-
-		#endregion
-
+			
+		/// <summary>
+		/// Turn a screen point into a ground world position.
+		/// </summary>
+		/// <returns>World position on the gorund.</returns>
+		/// <param name="screenPos">Screen position.</param>
 		private Vector3 ScreenPointToGround (Vector3 screenPos)
 		{
 			RaycastHit hit;
@@ -148,36 +175,39 @@ namespace EfrelGames
 			return Vector3.zero;
 		}
 
-		private void TapToSelectionAction (Vector3 pos, int tapCount) {
+		/// <summary>
+		/// Turn a screen point into a selectable if successful hit.
+		/// </summary>
+		/// <returns>The selectable hit.</returns>
+		/// <param name="screenPos">Screen position.</param>
+		private SelectableCtrl ScreenPointToSelectable (Vector3 screenPos)
+		{
+			RaycastHit hit;
+			int layerMask = 1 << SELECTABLE_LAYER;
+			if (Physics.Raycast (_cam.ScreenPointToRay (screenPos), out hit, 
+				100f, layerMask)) {
+				return hit.collider.GetComponent <SelectableCtrl> ();
+			}
+			return null;
+		}
+			
+		/// <summary>
+		/// Turn tapping input into game functions: selection or action
+		/// </summary>
+		/// <param name="screenPos">Screen position.</param>
+		/// <param name="tapCount">Number of taps.</param>
+		private void TapToSelectionAction (Vector3 screenPos, int tapCount) {
+			SelectableCtrl target = this.ScreenPointToSelectable(screenPos);
 			if (tapCount == 1) {
-				RaycastHit hit;
-				int layerMask = 1 << SELECTABLE_LAYER;
-				SelectableCtrl sel = null;
-				if (Physics.Raycast (_cam.ScreenPointToRay (pos), out hit, 100f,
-						layerMask)) {
-					sel = hit.collider.GetComponent <SelectableCtrl> ();
-				}
-				_selMngr.SetSelection (sel);
+				_selMngr.SetSelection (target);
 			} else {
-				int layerMask = (1 << SELECTABLE_LAYER) | (1 << GROUND_LAYER) ;
-				RaycastHit[] hits = Physics.RaycastAll (
-					_cam.ScreenPointToRay (pos), 100, layerMask
-				);
-				SelectableCtrl target = null;
-				Vector3 groundPos = Vector3.zero;
-				foreach (RaycastHit hit in hits) {
-					GameObject hitGo = hit.collider.gameObject;
-					if (hitGo.layer == SELECTABLE_LAYER) {
-						target = hitGo.GetComponent<SelectableCtrl> ();
-					}
-					if (hitGo.layer == GROUND_LAYER) {
-						groundPos = hit.point;
-					}
-					foreach (SelectableCtrl sel in _selMngr.selectedList) {
-						sel.ActionSelect (target, groundPos);
-					}
+				Vector3 groundPos = this.ScreenPointToGround (screenPos);
+				foreach (SelectableCtrl sel in _selMngr.selectedList) {
+					sel.ActionSelect (target, groundPos);
 				}
 			}
 		}
+
+		#endregion
 	}
 }

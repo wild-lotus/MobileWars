@@ -18,7 +18,9 @@ namespace EfrelGames {
 		void Awake () {
 			selList = new List<SelectableCtrl> ();
 			foreach (Transform child in transform) {
-				selList.Add (child.GetComponent<SelectableCtrl> ());
+				if (child.gameObject.activeInHierarchy) {
+					selList.Add (child.GetComponent<SelectableCtrl> ());
+				}
 			}
 		}
 

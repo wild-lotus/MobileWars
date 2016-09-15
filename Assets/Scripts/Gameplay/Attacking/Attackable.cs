@@ -105,7 +105,10 @@ namespace EfrelGames
 
 		public override string ToString ()
 		{
-			return string.Format ("[{0} Attackable: HP={1}]", sel.name, CurrentHp);
+			return string.Format (
+				"[{0} Attackable: HP={1}]",
+				sel.name,
+				CurrentHp.Value);
 		}
 
 		#endregion

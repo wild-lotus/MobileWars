@@ -136,7 +136,8 @@ namespace EfrelGames
 					this.SameTarget (target)
 						&& target.Alive
 						&& this.AutoAttackReachable (target)
-				).Do (_ => {
+				)
+				.Do (_ => {
 					if (!_agg.WithinWeaponRange (target)) {
 						// Chase enemy
 						dest = this.AddAutoAttackDest (tgtTrans.position);
@@ -145,7 +146,8 @@ namespace EfrelGames
 						_mov.Remove (DestType.AutoAtt);
 						_mov.Remove (DestType.AutoAttRetrun);
 					}
-				}).DoOnCompleted (() => {
+				})
+				.DoOnCompleted (() => {
 					// Clear target
 					_agg.Release (target);
 					if (_mov) {
@@ -157,7 +159,8 @@ namespace EfrelGames
 							this.AddReturnDest ();
 						}
 					}	
-				}).Subscribe ();
+				})
+				.Subscribe ();
 		}
 
 		/// <summary>

@@ -74,7 +74,8 @@ namespace EfrelGames
 					this.SameTarget (target)
 						&& target.Alive
 						&& this.PlayerAttackReachable (target)
-				).Do (_ => {
+				)
+				.Do (_ => {
 					if (!_agg.WithinWeaponRange (target)) {
 						// Chase enemy
 						dest = this.AddPlayerAttackDest (tgtTrans.position);
@@ -82,14 +83,16 @@ namespace EfrelGames
 						// Clear destination
 						_mov.Remove (DestType.PlayerAtt);
 					}
-				}).DoOnCompleted (() => {
+				})
+				.DoOnCompleted (() => {
 					// Clear target
 					_agg.Release (target);
 					if (_mov) {
 						// Clear PlayerAttack destination
 						_mov.Remove (dest);
 					}
-				}).TakeUntilDestroy (gameObject)
+				})
+				.TakeUntilDestroy (gameObject)
 				.Subscribe ();
 		}
 
@@ -130,9 +133,12 @@ namespace EfrelGames
 		/// </summary>
 		private Destination AddPlayerAttackDest (Vector3 pos)
 		{
-			Destination dest = new Destination (pos, DestType.PlayerAtt);
-			_mov.Add (dest);
-			return dest;
+			if (_mov.Dest == null || _mov.Dest.Position != pos) {
+				Destination dest = new Destination (pos, DestType.PlayerAtt);
+				_mov.Add (dest);
+				return dest;
+			}
+			return _mov.Dest;
 		}
 
 		#endregion

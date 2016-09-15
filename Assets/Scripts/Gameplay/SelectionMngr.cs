@@ -126,6 +126,7 @@ namespace EfrelGames
 		/// </summary>
 		public void AllUnits ()
 		{
+			this.ClearSelection ();
 			foreach (SelectableCtrl sel in player.unitsList) {
 				sel.Selected = true;
 			}

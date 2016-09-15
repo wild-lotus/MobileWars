@@ -76,9 +76,10 @@ namespace EfrelGames
 				// Detect nearby dying enemies
 				otherAtt.CurrentHp
 					.TakeUntilDestroy (gameObject)
+					.TakeWhile(hp => hp > 0)
+					.DoOnCompleted (() => AttList.Remove (otherAtt))
 					.TakeWhile (_ => AttList.Contains (otherAtt))
-					.Where (hp => hp <= 0)
-					.Subscribe (hp => AttList.Remove (otherAtt));
+					.Subscribe ();
 			}
 		}
 

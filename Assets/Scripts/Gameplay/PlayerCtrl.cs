@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using UniRx;
 
 namespace EfrelGames {
 	/// <summary>
@@ -20,15 +21,34 @@ namespace EfrelGames {
 		#endregion
 
 
-		#region Context menu methods
+		#region Unity callbacks
 		//======================================================================
 
 		void Awake () {
-			PlayerNum = 1;
+			PlayerNum = 2;
 			unitsList = new List<SelectableCtrl> ();
 			foreach (Transform child in transform) {
 				if (child.gameObject.activeInHierarchy) {
-					unitsList.Add (child.GetComponent<SelectableCtrl> ());
+					// Add to units list.
+					SelectableCtrl sel = child.GetComponent<SelectableCtrl> ();
+					unitsList.Add (sel);
+				}
+			}
+		}
+
+		void Start ()
+		{
+			// Remove from units list if killed.
+			foreach (SelectableCtrl sel in unitsList) {
+				// Create local reference for the closure.
+				SelectableCtrl sel2 = sel;
+				if (sel.att) {
+					sel.att.CurrentHp
+						.TakeUntilDestroy (gameObject)
+						.TakeWhile (hp => hp > 0)
+						.Subscribe (_ => {}, () => {
+							unitsList.Remove (sel2); 
+						});
 				}
 			}
 		}

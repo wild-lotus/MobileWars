@@ -113,6 +113,9 @@ namespace EfrelGames
 			if (_action == Action.None && IsAllUnits) {
 				_action = Action.AllUnits;
 				_selMngr.AllUnits ();
+				#if  (UNITY_EDITOR || UNITY_STANDALONE)
+				_action = Action.None;
+				#endif
 			}
 			this.CheckSelection ();
 		}

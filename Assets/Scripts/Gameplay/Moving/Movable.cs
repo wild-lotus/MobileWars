@@ -9,6 +9,15 @@ namespace EfrelGames
 	[RequireComponent (typeof(SelectableCtrl))]
 	public class Movable : MonoBehaviour
 	{
+		#region Constants
+		//======================================================================
+
+		private const bool LOG = true;
+		private const float DIST_NAVMESH = 0.01f;
+
+		#endregion
+
+
 		#region Public fields and properties
 		//======================================================================
 
@@ -77,7 +86,7 @@ namespace EfrelGames
 				.Where(_ => {
 					NavMeshHit hit;
 					return NavMesh.SamplePosition(
-							_trans.position, out hit, 0.01f, NavMesh.AllAreas
+						_trans.position, out hit, DIST_NAVMESH, NavMesh.AllAreas
 					);
 				})
 				.First()
@@ -105,7 +114,7 @@ namespace EfrelGames
 		public IObservable<bool> Add (Destination dest)
 		{
 			if ((Dest == null || (int)Dest.Type <= (int)dest.Type)) {
-//				Debug.Log ("Added destination " + dest);
+				if (LOG) Debug.Log ("Added destination " + dest);
 				Dest = dest;
 				return this.StartPath ();;
 			}

@@ -28,7 +28,7 @@ namespace EfrelGames
 		/// <summary>
 		/// List of selectables currently selected by the player.
 		/// </summary>
-		public IList<SelectableCtrl> selectedList;
+		public List<SelectableCtrl> selectedList;
 
 		#endregion
 
@@ -49,7 +49,6 @@ namespace EfrelGames
 		void Awake ()
 		{
 			selectedList = new List<SelectableCtrl> ();
-
 			// Stream to add units to the selection with long selection mark.
 			longSelMark.GetComponent<ObservableTriggerTrigger> ()
 				.OnTriggerEnterAsObservable ()
@@ -72,7 +71,7 @@ namespace EfrelGames
 		{
 			this.ClearSelection ();
 			if (sel != null) {
-				if (LOG) Debug.Log (name + " Selected " + sel.name);
+				if (LOG) Debug.Log ("SelectionMngr: Selected " + sel.name);
 				sel.Selected = true;
 			}
 		}
@@ -97,12 +96,14 @@ namespace EfrelGames
 		{
 			if (target == null || target.PlayerNum == PlayerCtrl.PlayerNum) {
 				// It is a move action.
+				if (LOG) Debug.Log ("SelectionMngr: Player action movement.");
 				this.SpawnDestFx (groundPos);
 				foreach (SelectableCtrl sel in selectedList) {
 					sel.Move (groundPos);
 				}
 			} else {
 				// It is an attack action.
+				if (LOG) Debug.Log ("SlectionMngr: Player action attack.");
 				target.view.selMarkAnim.SetTrigger ("Targeted");
 				this.SpawnDestFx (target.trans.position);
 				foreach (SelectableCtrl sel in selectedList) {

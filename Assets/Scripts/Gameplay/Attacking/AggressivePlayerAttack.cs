@@ -63,7 +63,6 @@ namespace EfrelGames
 			}
 
 			// Start attacking.
-			Debug.Log (sel.name + "Player attack on " + target.sel.name);
 			_agg.Attack (target);
 
 			// Start PlayerAttack chasing stream. Chase enemy to death.

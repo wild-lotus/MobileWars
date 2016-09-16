@@ -12,7 +12,7 @@ namespace EfrelGames
 		#region Constants
 		//======================================================================
 
-		private const bool LOG = true;
+		private const bool LOG = false;
 		public const int GROUND_LAYER = 8;
 
 		#endregion
@@ -101,6 +101,8 @@ namespace EfrelGames
 
 		public void Move (Vector3 pos)
 		{
+			if (LOG)
+				Debug.Log (name + " Player set move to " + pos);
 			if (this.mov != null) {
 				this.mov.Add (new Destination (pos, DestType.PlayerSet));
 				view.Move (pos);
@@ -111,6 +113,8 @@ namespace EfrelGames
 
 		public void Attack (SelectableCtrl target)
 		{
+			if (LOG)
+				Debug.Log (name + " Player set attack to " + target.name);
 			if (this.aggPA && target.att &&
 			    	this.PlayerNum != 
 						target.GetComponent <SelectableCtrl> ().PlayerNum) {

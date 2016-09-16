@@ -333,7 +333,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010768373450}
   m_LocalRotation: {x: -0, y: -0.8789446, z: -0, w: 0.47692394}
-  m_LocalPosition: {x: -6.6, y: 0.2333333, z: 11.9}
+  m_LocalPosition: {x: 90.1, y: 0.09676207, z: 86.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_LocalEulerAnglesHint: {x: 0, y: -123.171005, z: 0}
   m_Children:
@@ -728,8 +728,6 @@ MonoBehaviour:
   - {fileID: 23000011401416304}
   selMarkRend: {fileID: 23000011352205008}
   selMarkAnim: {fileID: 95000013425239902}
-  destFxPrefab: {fileID: 1000013440406384, guid: 1853fb03cf13747d6b8b581445ca5853,
-    type: 2}
 --- !u!114 &114000010486687606
 MonoBehaviour:
   m_ObjectHideFlags: 1

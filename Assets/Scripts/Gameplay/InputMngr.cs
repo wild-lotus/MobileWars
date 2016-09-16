@@ -67,7 +67,9 @@ namespace EfrelGames
 
 		private bool IsSelUp { get { return Input.GetMouseButtonUp (0); } }
 
-		private bool IsAllUnits { get { return Input.GetKeyUp("a"); } }
+		private bool IsAllUnitsDown { get { return Input.GetKeyDown("a"); } }
+
+		private bool IsAllUnitsUp { get { return Input.GetKeyUp("a"); } }
 
 		#elif (UNITY_ANDROID || UNITY_IOS)
 
@@ -87,7 +89,9 @@ namespace EfrelGames
 			}
 		}
 
-		private bool IsAllUnits { get { return Input.touchCount == 3; } }
+		private bool IsAllUnitsDown { get { return Input.touchCount == 3; } }
+
+		private bool IsAllUnitsUp { get { return Input.touchCount == 0; } }
 
 		#endif
 
@@ -110,14 +114,8 @@ namespace EfrelGames
 
 		void Update ()
 		{
-			if (_action == Action.None && IsAllUnits) {
-				_action = Action.AllUnits;
-				_selMngr.AllUnits ();
-				#if  (UNITY_EDITOR || UNITY_STANDALONE)
-				_action = Action.None;
-				#endif
-			}
 			this.CheckSelection ();
+			this.CheckAllUnits ();
 		}
 
 		#endregion
@@ -165,6 +163,16 @@ namespace EfrelGames
 					this.TapToSelectionAction (_lastTapPos, _tapCount);
 					_tapCount = 0;
 				}
+			}
+		}
+
+		private void CheckAllUnits ()
+		{
+			if (_action == Action.None && IsAllUnitsDown) {
+				_action = Action.AllUnits;
+				_selMngr.AllUnits ();
+			} else if (_action == Action.AllUnits && IsAllUnitsUp) {
+				_action = Action.None;
 			}
 		}
 			

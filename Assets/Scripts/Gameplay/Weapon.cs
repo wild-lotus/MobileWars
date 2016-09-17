@@ -32,7 +32,7 @@ namespace EfrelGames
 		#region Cached components
 		//======================================================================
 
-		private Transform _trans;
+//		private Transform _trans;
 
 		#endregion
 
@@ -41,13 +41,14 @@ namespace EfrelGames
 		//======================================================================
 
 		public GameObject bulletPrefab;
+		public Transform bulletSpawn;
 
 		#endregion
 
 
 		void Awake ()
 		{
-			_trans = transform;
+//			_trans = transform;
 			// Inittialize firing observable from subject.
 			fireSubject = new Subject<Attackable> ();
 			fireSubject
@@ -75,9 +76,10 @@ namespace EfrelGames
 		private void Shoot (Attackable target) {
 			GameObject bulletGo = GameObject.Instantiate (bulletPrefab);
 			Transform bulletTrans = bulletGo.transform;
-			bulletTrans.position = _trans.position + Vector3.up;
+			bulletTrans.position = bulletSpawn.position;
+			Vector3 targetPos = target.transform.position + Vector3.up;
 
-			Vector3 dPos = target.transform.position - _trans.position;
+			Vector3 dPos = targetPos - bulletSpawn.position;
 			Vector3 dir = dPos.normalized;
 
 			GameObject.Destroy (bulletGo, dPos.magnitude / bulletSpeed);

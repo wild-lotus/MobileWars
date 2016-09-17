@@ -43,7 +43,7 @@ namespace EfrelGames {
 					sc.PlayerNum = newPlayerNum;
 				}
 			}
-				
+
 			bool newSelected = EditorGUILayout.Toggle ("Selected", selCtrls[0].Selected);
 			if (Application.isPlaying) {
 				_selected.boolValue = newSelected;

@@ -34,6 +34,14 @@ namespace EfrelGames
 		#endregion
 
 
+		#region External references
+		//======================================================================
+
+		public SelectableCtrl sel;
+
+		#endregion
+
+
 		#region Cached components
 		//======================================================================
 
@@ -114,7 +122,7 @@ namespace EfrelGames
 		public IObservable<bool> Add (Destination dest)
 		{
 			if ((Dest == null || (int)Dest.Type <= (int)dest.Type)) {
-				if (LOG) Debug.Log ("Added destination " + dest);
+				if (LOG) Debug.Log (name + " Added destination " + dest);
 				Dest = dest;
 				return this.StartPath ();;
 			}
@@ -214,6 +222,19 @@ namespace EfrelGames
 			_agent.stoppingDistance = Dest.Distance;
 
 			return pathCheckObs;
+		}
+
+		#endregion
+
+
+		#region Context menu methods
+		//======================================================================
+
+		[ContextMenu ("Set References")]
+		public void SetReferences ()
+		{
+			sel = GetComponent<SelectableCtrl> ();
+			sel.mov = this;
 		}
 
 		#endregion

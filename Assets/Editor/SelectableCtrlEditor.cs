@@ -12,15 +12,25 @@ namespace EfrelGames {
 
 		private SerializedProperty _playerNum;
 		private SerializedProperty _selected;
-		private bool cagada;
+
+		private bool _playerNum_hmdv;
+		private bool _selected_hmdv;
+
+		private int _playerNum_value;
+		private bool _selected_value;
+
+		private bool _selWrongEdit;
 
 		void OnEnable () {
 			// Setup the SerializedProperties.
 			_playerNum = serializedObject.FindProperty ("_playerNum");
+			_playerNum_hmdv = _playerNum.hasMultipleDifferentValues;
+			_playerNum_value = _playerNum.intValue;
+
 			_selected = serializedObject.FindProperty ("_selected");
+			_selected_hmdv = _selected.hasMultipleDifferentValues;
+			_selected_value = _selected.boolValue;
 		}
-
-
 
 		public override void OnInspectorGUI()
 		{
@@ -29,41 +39,49 @@ namespace EfrelGames {
 		
 			base.OnInspectorGUI ();
 
-			SelectableCtrl[] selCtrls = Array.ConvertAll(targets, item => (SelectableCtrl)item);
-
-			int newPlayerNum = EditorGUILayout.IntPopup (
-				"Player Num",
-				selCtrls[0].PlayerNum,
-				new string[] {"0", "1", "2"},
+			// Draw properties
+			EditorGUILayout.IntPopup (
+				_playerNum,
+				new GUIContent[] {
+					new GUIContent ("0"),
+					new GUIContent ("1"),
+					new GUIContent ("2")
+				},
 				new int[] {0, 1, 2}
 			);
-			_playerNum.intValue = newPlayerNum;
-			foreach (SelectableCtrl sc in selCtrls) {
-				if (sc.PlayerNum != newPlayerNum) {
-					sc.PlayerNum = newPlayerNum;
-				}
-			}
+			EditorGUILayout.PropertyField (_selected);
 
-			bool newSelected = EditorGUILayout.Toggle ("Selected", selCtrls[0].Selected);
-			if (Application.isPlaying) {
-				_selected.boolValue = newSelected;
-				foreach (SelectableCtrl sc in selCtrls) {
-					if (sc.Selected != newSelected) {
-						sc.Selected = newSelected;
+			// Check for changes
+			if (GUI.changed) {
+				SelectableCtrl[] selCtrls = Array.ConvertAll(targets, item => (SelectableCtrl)item);
+				// On player num
+				if (_playerNum_hmdv != _playerNum.hasMultipleDifferentValues
+				    	|| _playerNum_value != _playerNum.intValue) {
+					_playerNum_hmdv = _playerNum.hasMultipleDifferentValues;
+					_playerNum_value = _playerNum.intValue;
+					foreach (SelectableCtrl sc in selCtrls) {
+						sc.PlayerNum = _playerNum_value;
 					}
 				}
-			} else {
-				foreach (SelectableCtrl sc in selCtrls) {
-					if (sc.Selected != newSelected) {
-						Debug.Log ("muere");
-						cagada = true;
-						break;
+				// On selected
+				if ( _selected_hmdv != _selected.hasMultipleDifferentValues
+						|| _selected_value != _selected.boolValue) {
+					// Selected can only be modified while playing
+					if (Application.isPlaying) {
+						_selected_hmdv = _selected.hasMultipleDifferentValues;
+						_selected_value = _selected.boolValue;
+						foreach (SelectableCtrl sc in selCtrls) {
+							sc.Selected = _selected_value;
+						}
+					} else {
+						_selWrongEdit = true;
+						_selected.boolValue = false;
 					}
 				}
 			}
-
-			if (cagada) {
-				EditorGUILayout.HelpBox ("\"Selected\" only modifiable in Editor while playing.", MessageType.Warning);
+				
+			if (_selWrongEdit) {
+				EditorGUILayout.HelpBox ("Selected property can only be modified while playing.", MessageType.Warning);
 			}
 
 			serializedObject.ApplyModifiedProperties ();

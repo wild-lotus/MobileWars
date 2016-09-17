@@ -28,7 +28,7 @@ namespace EfrelGames
 		/// <summary>
 		/// List of selectables currently selected by the player.
 		/// </summary>
-		public List<SelectableCtrl> selectedList;
+		public HashSet<SelectableCtrl> selectedList;
 
 		#endregion
 
@@ -48,7 +48,7 @@ namespace EfrelGames
 
 		void Awake ()
 		{
-			selectedList = new List<SelectableCtrl> ();
+			selectedList = new HashSet<SelectableCtrl> ();
 			// Stream to add units to the selection with long selection mark.
 			longSelMark.GetComponent<ObservableTriggerTrigger> ()
 				.OnTriggerEnterAsObservable ()

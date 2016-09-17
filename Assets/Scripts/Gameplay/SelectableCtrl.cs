@@ -12,7 +12,7 @@ namespace EfrelGames
 		#region Constants
 		//======================================================================
 
-		private const bool LOG = false;
+		private const bool LOG = true;
 		public const int GROUND_LAYER = 8;
 
 		#endregion
@@ -22,37 +22,33 @@ namespace EfrelGames
 
 		[SerializeField]
 		[HideInInspector]
-		private int _player;
+		private int _playerNum;
 		public int PlayerNum {
-			get { return _player; }
+			get { return _playerNum; }
 			set {
-				if (_player != value) {
-					_player = value;
-					_player = Mathf.Clamp (_player, 0, 2);
-					view.SetPlayerNum (_player);
-				}
+				_playerNum = value;
+				_playerNum = Mathf.Clamp (_playerNum, 0, 2);
+				view.SetPlayerNum (_playerNum);
 			}
 		}
-
+	
 		[SerializeField]
 		[HideInInspector]
 		private bool _selected;
 		public bool Selected {
 			get { return _selected; }
 			set {
-				if (_selected != value) {
-					_selected = value;
-					if (_selected) {
-						if (LOG)
-							Debug.Log (name + " Selected");
-						selectionMngr.selectedList.Add (this);
-					} else {
-						if (LOG)
-							Debug.Log (name + " Unselected");
-						selectionMngr.selectedList.Remove (this);
-					}
-					view.Select (_selected);
+				_selected = value;
+				if (_selected) {
+					if (LOG)
+						Debug.Log (name + " Selected");
+					selectionMngr.selectedList.Add (this);
+				} else {
+					if (LOG)
+						Debug.Log (name + " Unselected");
+					selectionMngr.selectedList.Remove (this);
 				}
+				view.Select (_selected);
 			}
 		}
 

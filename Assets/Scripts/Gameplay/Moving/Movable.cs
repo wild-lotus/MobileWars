@@ -13,7 +13,7 @@ namespace EfrelGames
 		//======================================================================
 
 		private const bool LOG = true;
-		private const float DIST_NAVMESH = 0.01f;
+		private const float DIST_NAVMESH = 0.1f;
 
 		#endregion
 

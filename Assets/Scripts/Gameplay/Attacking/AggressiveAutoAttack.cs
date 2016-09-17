@@ -154,7 +154,8 @@ namespace EfrelGames
 						// Cleat autoAttack destination
 						_mov.Remove (dest);
 						if (_mov.Dest == null 
-								&& _returnPos != Vector3.zero) {
+								&& _returnPos != Vector3.zero
+								&& _returnPos != _trans.position) {
 							// Add AutoReturn destination
 							this.AddReturnDest ();
 						}

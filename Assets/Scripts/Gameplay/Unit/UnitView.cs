@@ -4,14 +4,15 @@ using UniRx;
 
 namespace EfrelGames {
 	/// <summary>
-	/// View related behaviour of a selectable.
+	/// View related behaviour of a unit.
 	/// </summary>
-	public abstract class SelectableView : MonoBehaviour {
+	public class UnitView : SelectableView {
 
 		#region Extrnal references
 		//======================================================================
 
-		public Renderer[] playerColoredRends;
+		public Renderer selMarkRend;
+		public Animator selMarkAnim;
 
 		#endregion
 
@@ -20,34 +21,43 @@ namespace EfrelGames {
 		//======================================================================
 
 		/// <summary>
-		/// View effects when selecting or unselecting this selectable.
+		/// View effects when selecting or unselecting this unit.
 		/// </summary>
 		/// <param name="selected">If set to <c>true</c> selected.</param>
-		public virtual void Selected (bool selected)
+		public override void Selected (bool selected)
 		{
+			if (selected) {
+				selMarkAnim.ResetTrigger("Unselected");
+				selMarkAnim.SetTrigger ("Selected");
+			} else {
+				selMarkAnim.SetTrigger ("Unselected");
+			}
 		}
-			
+
 		/// <summary>
 		/// View effects when moving to the specified position.
 		/// </summary>
 		/// <param name="pos">Position.</param>
-		public virtual void Move (Vector3 pos)
+		public override void Move (Vector3 pos)
 		{
+			transform.LookAt (pos);
 		}
 
 		/// <summary>
 		/// View effects when attacking the specified target.
 		/// </summary>
 		/// <param name="target">Target attackable.</param>
-		public virtual void Attack (Attackable target)
+		public override void Attack (Attackable target)
 		{
+			transform.LookAt (target.transform.position);
 		}
 
 		/// <summary>
 		/// View effects when being attacked.
 		/// </summary>
-		public virtual void Targeted ()
+		public override void Targeted ()
 		{
+			selMarkAnim.SetTrigger ("Targeted");
 		}
 
 		/// <summary>
@@ -55,12 +65,10 @@ namespace EfrelGames {
 		/// belongs to.
 		/// </summary>
 		/// <param name="player">Player number.</param>
-		public virtual void SetPlayerNum (int player)
+		public override void SetPlayerNum (int player)
 		{
-			Material mat = PlayersColors.playerMats [player];
-			foreach (Renderer rend in playerColoredRends) {
-				rend.material = mat;
-			}
+			base.SetPlayerNum (player);
+			selMarkRend.material = PlayersColors.selMarkMats[player];
 		}
 
 		#endregion
@@ -70,12 +78,12 @@ namespace EfrelGames {
 		//======================================================================
 
 		[ContextMenu ("Set References")]
-		public virtual void SetReferences ()
+		public override void SetReferences ()
 		{
-			GetComponentsInChildren <Renderer> ().ToObservable ()
-				.Where (x => x.CompareTag ("PlayerColored"))
-				.ToArray ()
-				.Subscribe(rends => playerColoredRends = rends);
+			base.SetReferences ();
+			selMarkRend = transform.Find("SelMark")
+				.GetComponentInChildren<Renderer> (true);
+			selMarkAnim = selMarkRend.GetComponent<Animator> ();
 		}
 
 		#endregion

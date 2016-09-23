@@ -45,14 +45,14 @@ namespace EfrelGames
 		void Awake ()
 		{
 			CurrentHp = new FloatReactiveProperty (maxHp);
-			// Set HpBar external references and reparent.
-			hpBar.selTrans = sel.transform;
-			hpBar.height = hpBar.transform.position.y;
-			hpBar.transform.SetParent (wolrdUiTrans);
 		}
 
 		void Start ()
 		{
+			// Set HpBar external references and reparent.
+			hpBar.selTrans = sel.trans;
+			hpBar.height = hpBar.transform.position.y;
+			hpBar.transform.SetParent (wolrdUiTrans);
 			// Update HP bar and detect death.
 			CurrentHp
 				.TakeUntilDestroy (gameObject)

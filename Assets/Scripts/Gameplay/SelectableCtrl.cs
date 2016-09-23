@@ -5,9 +5,17 @@ using System.Collections;
 namespace EfrelGames
 {
 	/// <summary>
+	/// Selectable types.
+	/// </summary>
+	public enum SelectableType {
+		Unit,
+		Building
+	}
+
+	/// <summary>
 	/// Controller for a selectable.
 	/// </summary>
-	public class SelectableCtrl : MonoBehaviour
+	public abstract class SelectableCtrl : MonoBehaviour
 	{
 		#region Constants
 		//======================================================================
@@ -17,8 +25,11 @@ namespace EfrelGames
 
 		#endregion
 
+
 		#region Public Configurable properties
 		//======================================================================
+
+		public SelectableType type;
 
 		[SerializeField]
 		[HideInInspector]
@@ -28,7 +39,7 @@ namespace EfrelGames
 			set {
 				_playerNum = value;
 				_playerNum = Mathf.Clamp (_playerNum, 0, 2);
-				view.SetPlayerNum (_playerNum);
+				this.view.SetPlayerNum (_playerNum);
 			}
 		}
 	
@@ -48,7 +59,7 @@ namespace EfrelGames
 						Debug.Log (name + " Unselected");
 					selectionMngr.selectedList.Remove (this);
 				}
-				view.Select (_selected);
+				this.view.Selected (_selected);
 			}
 		}
 
@@ -58,6 +69,7 @@ namespace EfrelGames
 		#region Cached components
 		//======================================================================
 
+		[HideInInspector]
 		public Transform trans;
 
 		#endregion
@@ -80,7 +92,7 @@ namespace EfrelGames
 		#region Unity callbacks
 		//======================================================================
 
-		void Awake ()
+		protected virtual void Awake ()
 		{
 			// Check external references
 			Assert.IsNotNull (selectionMngr);
@@ -130,7 +142,7 @@ namespace EfrelGames
 		//======================================================================
 
 		[ContextMenu ("Set References")]
-		public void SetReferences ()
+		public virtual void SetReferences ()
 		{
 			view = GetComponent <SelectableView> ();
 			selectionMngr = FindObjectOfType<SelectionMngr> ();

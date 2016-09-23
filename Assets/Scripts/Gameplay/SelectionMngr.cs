@@ -94,7 +94,8 @@ namespace EfrelGames
 		/// <param name="groundPos">Ground position.</param>
 		public void SetAction (SelectableCtrl target, Vector3 groundPos)
 		{
-			if (target == null || target.PlayerNum == PlayerCtrl.PlayerNum) {
+			if (!target || !target.att 
+					|| target.PlayerNum == PlayerCtrl.PlayerNum) {
 				// It is a move action.
 				if (LOG) Debug.Log ("SelectionMngr: Player action movement.");
 				this.SpawnDestFx (groundPos);
@@ -104,7 +105,7 @@ namespace EfrelGames
 			} else {
 				// It is an attack action.
 				if (LOG) Debug.Log ("SlectionMngr: Player action attack.");
-				target.view.selMarkAnim.SetTrigger ("Targeted");
+				target.view.Targeted ();
 				this.SpawnDestFx (target.trans.position);
 				foreach (SelectableCtrl sel in selectedList) {
 					sel.Attack (target);

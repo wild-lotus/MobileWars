@@ -420,10 +420,10 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1000010768373450}
-  m_LocalRotation: {x: -0, y: -0.8789446, z: -0, w: 0.47692394}
-  m_LocalPosition: {x: 90.1, y: 0.09676207, z: 86.5}
+  m_LocalRotation: {x: -0, y: -0.49273685, z: -0, w: -0.8701784}
+  m_LocalPosition: {x: 90.32, y: 0.1, z: 86.19}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_LocalEulerAnglesHint: {x: 0, y: -123.171005, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -301.01498, z: 0}
   m_Children:
   - {fileID: 4000013268160790}
   - {fileID: 4000010677318052}
@@ -881,7 +881,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1000010768373450}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fbcb3840453754141810caa0acfe3ab7, type: 3}
+  m_Script: {fileID: 11500000, guid: 198da37bcea54476f9886ac31ef77548, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   playerColoredRends:
@@ -934,7 +934,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94aabb16db5ba4615ada3a95f9c9a788, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  autoAttackRange: 10
+  autoAttackRange: 15
   autoChaseRange: 12
   sel: {fileID: 114000014131321606}
 --- !u!114 &114000011747263990
@@ -1004,7 +1004,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7839f7a8b2cc8416fbc49c3b5ff65e25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sel: {fileID: 114000014131321606}
+  sel: {fileID: 0}
 --- !u!114 &114000012294044272
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1086,10 +1086,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1000010768373450}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ea53ff1203b64e1cb7d0ecf145bfcdb, type: 3}
+  m_Script: {fileID: 11500000, guid: 1c508090b88864d92b61189476942f66, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _player: 2
+  type: 0
+  _playerNum: 2
   _selected: 0
   trans: {fileID: 0}
   selectionMngr: {fileID: 0}

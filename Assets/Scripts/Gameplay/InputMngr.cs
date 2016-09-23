@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using System.Collections;
 
 namespace EfrelGames
@@ -114,8 +115,10 @@ namespace EfrelGames
 
 		void Update ()
 		{
-			this.CheckSelection ();
-			this.CheckAllUnits ();
+			if (!EventSystem.current.IsPointerOverGameObject ()) {
+				this.CheckSelection ();
+				this.CheckAllUnits ();
+			}
 		}
 
 		#endregion
